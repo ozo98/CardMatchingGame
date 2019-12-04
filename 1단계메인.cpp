@@ -31,8 +31,7 @@ int main()
 			return 0;
 		default:
 			manager.DefaultException();
-			break;
-				
+			break;	
 		}
 	}
 	return 0;
