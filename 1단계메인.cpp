@@ -1,4 +1,4 @@
-#include "1�ܰ�.h"
+#include "1´Ü°č.h"
 
 int main()
 {
@@ -32,6 +32,7 @@ int main()
 		default:
 			manager.DefaultException();
 			break;
+				
 		}
 	}
 	return 0;
