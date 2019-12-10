@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _CARD_MATCHING_GAME_HEADER_
+#define _CARD_MATCHING_GAME_HEADER_
+
 #include <iostream>
 #include <time.h>  
 #include <conio.h>
@@ -12,18 +14,18 @@ cout << "     #        #####   ####  #  #    #   ###   #####   # #   # # ######"
 cout << "     #       #     #  # #   #  #    #    #   #     #  #       # #     " << endl;\
 cout << "     ###### #       # #  ## ###     ######  #       # #       # ######" << endl;\
 cout << endl << endl; \
-cout << "                               °Ô ÀÓ ½Ã ÀÛ" << endl;\
-cout << "                               Á¾       ·á" << endl;\
-cout << "¸Þ´º Á¶ÀÛ¹ý : w À§ s ¾Æ·¡ f ´©¸§" << endl; \
+cout << "                               ê²Œ ìž„ ì‹œ ìž‘" << endl;\
+cout << "                               ì¢…       ë£Œ" << endl;\
+cout << "ë©”ë‰´ ì¡°ìž‘ë²• : w ìœ„ s ì•„ëž˜ f ëˆ„ë¦„" << endl; \
 cout << endl <<endl;
-#define LEVEL    cout << endl<<"·¹º§ ¼±ÅÃ" << endl << endl << endl << endl<<endl;\
-cout << "                   Easy : 200ÃÊ" << endl;\
-cout << "                »ç¶÷ÀÌ¶ó¸é Å¬¸®¾î°¡´É" << endl<<endl;\
-cout << "                   Normal : 150ÃÊ" << endl;\
-cout << "                º¸Åë³­ÀÌµµ ÇÒ¸¸ÇÑÁ¤µµ" << endl<<endl;\
-cout << "                   Hard : 100ÃÊ " << endl;\
-cout << "       100ÃÊ´Â »ý°¢º¸´Ù ÂªÀº ½Ã°£ÀÌ¶õ°É ¾Ë°ÔµÉ°Å¾ß" << endl<<endl<<endl;\
-cout << "######### w : À§ #### s : ¾Æ·¡ #### f : ½ÃÀÛ ########"
+#define LEVEL    cout << endl<<"ë ˆë²¨ ì„ íƒ" << endl << endl << endl << endl<<endl;\
+cout << "                   Easy : 200ì´ˆ" << endl;\
+cout << "                ì‚¬ëžŒì´ë¼ë©´ í´ë¦¬ì–´ê°€ëŠ¥" << endl<<endl;\
+cout << "                   Normal : 150ì´ˆ" << endl;\
+cout << "                ë³´í†µë‚œì´ë„ í• ë§Œí•œì •ë„" << endl<<endl;\
+cout << "                   Hard : 100ì´ˆ " << endl;\
+cout << "       100ì´ˆëŠ” ìƒê°ë³´ë‹¤ ì§§ì€ ì‹œê°„ì´ëž€ê±¸ ì•Œê²Œë ê±°ì•¼" << endl<<endl<<endl;\
+cout << "######### w : ìœ„ #### s : ì•„ëž˜ #### f : ì‹œìž‘ ########"
 #define _SUCCESS cout <<endl<<endl<<endl;\
 cout << "     ######   #     #     ######   ######   ######   ######   ###### " <<endl;\
 cout << "     #        #     #     #        #        #        #        #      " <<endl;\
@@ -109,14 +111,14 @@ public:
 
     void InitGame();
     void MainMenu();
-    //void LevelSelection();
+    void LevelSelection();
     void HowToPlay();
     void OpenCard();
     void PlayGame();
-    //void GameSuccess();
-    //void GameOver();
-    //void Result();
+    void GameSuccess();
+    void GameOver();
+    void Result();
     void DefaultException();
-    //void EndGame();
+    void EndGame();
 
 };
