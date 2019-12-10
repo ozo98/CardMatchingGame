@@ -25,6 +25,19 @@ int map[23][41]{
 { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 },
 { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
 };
+GameManager* GameManager::GetManagerInstance()
+{
+	if (!GameManager::isGenerate)
+	{
+		isGenerate = true;
+		return new GameManager();
+	}
+	else
+	{
+		return NULL;
+	}
+}
+bool GameManager::isGenerate = false;
 //class Alphabet Function
 //Get Set Alphabet object's Alphabet
 char Alphabet::GetAlphabet()const { return _alphabet; }
@@ -118,7 +131,7 @@ void GameManager::Render()
         }
         cout << endl;
     }
-    cout << "³²Àº ½Ã°£ : " << leftTime << " " << endl;
+    cout << "ë‚¨ì€ ì‹œê°„ : " << leftTime << " " << endl;
 }
 void GameManager::HowToPlay()
 {
@@ -126,8 +139,8 @@ void GameManager::HowToPlay()
     cout << endl << endl << endl << endl << endl << endl;
     cout << "       #####################################" << endl;
     cout << "       #                                   #" << endl;
-    cout << "       #       »óÇÏÁÂ¿ì : wsad key         #" << endl;
-    cout << "       #       Ä«µå µÚÁý±â : f key         #" << endl;
+    cout << "       #       ìƒí•˜ì¢Œìš° : wsad key         #" << endl;
+    cout << "       #       ì¹´ë“œ ë’¤ì§‘ê¸° : f key         #" << endl;
     cout << "       #                                   #" << endl;
     cout << "       #####################################" << endl;
     Sleep(4000);
@@ -136,7 +149,7 @@ void GameManager::HowToPlay()
 
 void GameManager::InitGame()
 {
-    //system("mode con cols=78 lines=17 | title Ä« µå ¸Å Äª °Ô ÀÓ");
+    //system("mode con cols=78 lines=17 | title ì¹´ ë“œ ë§¤ ì¹­ ê²Œ ìž„");
     CONSOLE_CURSOR_INFO info;
     info.bVisible = false;
     info.dwSize = 1;
@@ -254,16 +267,100 @@ void GameManager::OpenCard()
     }
     Render();
     _status = GAMESTATE::RUNNING;
+    firstTime = clock();
 }
 
+void GameManager::LevelSelection()
+{
+    system("cls");
+    system("mode con cols=53 lines=25 l title ì¹´ë“œ ë§¤ ì¹­ ê²Œ ìž„");
+    int key;
+    COORD coord( 14,6 );
+    HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    LEVEL;
+    SetConsoleCursorPosition(handle, coord);
+    while(true)
+    {
+        if (_kbhit())
+		{
+			system("cls");
+			LEVEL;
+			key = _getch();
+			key = toupper(key);
+
+			switch (key)
+			{
+			case 'S':
+				coord.Y += 3;
+				break;
+			case 'W':
+				coord.Y -= 3;
+				break;
+			case 'F':
+				if (coord.Y == 6)
+				{
+					_level = LEVELSTATE::LEVEL1;
+					_status = GAMESTATE::OPENCARD;
+					return;
+				}
+				else if (coord.Y == 9)
+				{
+					_level = LEVELSTATE::LEVEL2;
+					_status = GAMESTATE::OPENCARD;
+					return;
+				}
+				else if (coord.Y == 12)
+				{
+					_level = LEVELSTATE::LEVEL3;
+					_status = GAMESTATE::OPENCARD;
+					return;
+				}
+			}
+			if (coord.Y <= 6)
+				coord.Y = 6;
+			else if (coord.Y >= 12)
+				coord.Y = 12;
+		}
+		SetConsoleCursorPosition(handle, coord);
+		cout << ">";
+	}
+}
 void GameManager::PlayGame()
 {
     curXPos = 5;
     curYPos = 5;
+    int after;
+	int time = clock();
+	int key;
+	int firstRender = 0;
     while (true)
     {
-        int key;
-        if (_kbhit())
+        after = clock();
+		switch (_level)
+		{
+		case LEVELSTATE::LEVEL1:
+			leftTime = 200 - (after / 1000 - firstTime / 1000);
+			break;
+		case LEVELSTATE::LEVEL2:
+			leftTime = 150 - (after / 1000 - firstTime / 1000);
+			break;
+		case LEVELSTATE::LEVEL3:
+			leftTime = 100 - ((after / 1000 - firstTime / 1000));
+			break;
+		}
+		if (this->point >= 15)
+		{
+			this->_status = GAMESTATE::SUCCESS;
+			map[curYPos][curXPos] = 0;
+			break;
+		}
+		else if (this->leftTime <= 0)
+		{
+			this->_status = GAMESTATE::FAIL;
+			map[curYPos][curXPos] = 0;
+			break;
+		}
+        else if (_kbhit())
         {
             key = _getch();
             key = toupper(key);
@@ -313,15 +410,64 @@ void GameManager::PlayGame()
                 break;
             }
         }
-    }
+  		if (firstRender <= 1)
+		{
+			firstRender++;
+			Render();
+		}
+		if (after - time >= 1000)
+		{
+			Render();
+			time = clock();
+		}
+	}
+}
+
+void GameManager::GameSuccess()
+{
+	system("cls");
+	system("mode con cols=70 lines=20");
+	_SUCCESS;
+	Sleep(3000);
+	_status = GAMESTATE::RESULT;
+}
+void GameManager::GameOver()
+{
+	system("cls");
+	system("mode con cols=70 lines=20");
+	_FAIL;
+	Sleep(3000);
+	_status = GAMESTATE::RESULT;
+}
+//Report scores to result table
+void GameManager::Result()
+{
+	cout << endl << endl << endl;
+	cout << "             Your Point :  " << point << endl;
+	cout << "             ë‚¨ ì€ ì‹œ ê°„ : " << leftTime << endl;
+	cout << "          ì•„ë¬´ ë²„íŠ¼ì´ë‚˜ ëˆ„ë¥´ë©´ ìž¬ì‹œìž‘         " << endl << endl;
+	int a = _getch();
+	_status = GAMESTATE::GAMEINIT;
+	return;
 }
 
 void GameManager::DefaultException()
 {
-    cout << "Àß¸øµÈ Á¢±Ù" << endl;
-    cout << "¾Æ¹« ¹öÆ°ÀÌ³ª ´©¸£¸é °ÔÀÓÀÌ ´Ù½Ã ½ÃÀÛµË´Ï´Ù." << endl;
+    cout << "ìž˜ëª»ëœ ì ‘ê·¼" << endl;
+    cout << "ì•„ë¬´ ë²„íŠ¼ì´ë‚˜ ëˆ„ë¥´ë©´ ê²Œìž„ì´ ë‹¤ì‹œ ì‹œìž‘ë©ë‹ˆë‹¤." << endl;
     _status = GAMESTATE::GAMEINIT;
     int a = _getch();
+}
+
+void GameManager::EndGame()
+{
+	int endTimer = 3;
+	system("cls");
+	while (endTimer > 0)
+	{
+		cout << "ê²Œìž„ì´ ì¢…ë£Œë©ë‹ˆë‹¤......" << endTimer-- << endl;
+		Sleep(1000);
+	}
 }
 
 bool GameManager::IsSame(Card** ref)
