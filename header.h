@@ -6,7 +6,9 @@
 #include <conio.h>
 #include <Windows.h>
 using namespace std;
+
 #define CHECK(i,j)    if (i<= 5){i= 5;}if (j<= 5){j= 5;} if (i>=35) { i = 35;}  if (j>=21) { j=21;}
+
 #define MENU   cout << endl << endl << endl;\
 cout << "     ######     #     ####  ###     ######      #     #   #   # ######" << endl;\
 cout << "     #         # #    #  ## #  #    #          # #    ## # # ## #     " << endl;\
@@ -40,6 +42,7 @@ cout << "       ###    #   #  #     #     #####    #####     #     #      " <<en
 cout << "        #     #   #  #     #     #       #     #    #     #      " <<endl;\
 cout << "        #      ###    #####      #       #     #  #####   ###### " <<endl;\
 cout <<endl<<endl;
+
 enum class CARDSTATE { OPEN_CASE = 1, CLOSE_CASE };
 enum class GAMESTATE { GAMEINIT, READY, LEVELSELECTION, OPENCARD, RUNNING, STOP, SUCCESS, FAIL, RESULT, CLOSEGAME };
 enum class LEVELSTATE { LEVEL1, LEVEL2, LEVEL3 };
@@ -93,7 +96,6 @@ class GameManager
     Card _card_list[30];
     Alphabet _alphabet_list[26];
     int point, curXPos, curYPos;
-public:
     GameManager() : _alphabet_list(), _card_list(), _check_list(), _level(LEVELSTATE::LEVEL1),
         leftTime(0), firstTime(0), _checkCount(0), _status(GAMESTATE::GAMEINIT), curXPos(1), curYPos(1), point(0) {}
 
@@ -120,5 +122,11 @@ public:
     void Result();
     void DefaultException();
     void EndGame();
+public:
+    static GameManager*GetManagerInstance();
+    void CardGame();
+    
 
 };
+
+#endif // !_CARDGAME_HEADER_
