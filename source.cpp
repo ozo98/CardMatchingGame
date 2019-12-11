@@ -1,4 +1,4 @@
-#include "header.h"
+#include "CardMatchingGameHeader.h"
 
 int map[23][41]{
 { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
@@ -89,6 +89,7 @@ GAMESTATE GameManager::GetStatus()const { return _status; }
 void GameManager::SetStatus(GAMESTATE state) { this->_status = state; }
 Card& GameManager::GetCurrentCard(int idx) { return _card_list[idx]; }
 //Called every frame and display map
+
 void GameManager::Render()
 {
     COORD coord{ 0,0 };
@@ -147,13 +148,11 @@ void GameManager::HowToPlay()
     system("cls");
 }
 
+//Called by Main()
+//Responsible for the overall reset of the game. + Init GameManager's Member
 void GameManager::InitGame()
 {
-    //system("mode con cols=78 lines=17 | title 카 드 매 칭 게 임");
-    CONSOLE_CURSOR_INFO info;
-    info.bVisible = false;
-    info.dwSize = 1;
-    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
+    system("mode con cols=78 lines=17 | title 카 드 매 칭 게 임");
     point = 0;
     leftTime = 0;
     int CardIndex, AlphaIndex;
@@ -183,7 +182,7 @@ void GameManager::InitGame()
             Sleep(10);
             while (true)
             {
-                CardIndex = rand() % 30;
+		    CardIndex = rand() % 30;
                 if (!_card_list[CardIndex].GetUsed())
                 {
                     _card_list[CardIndex].SetUsed(true);
@@ -269,7 +268,7 @@ void GameManager::OpenCard()
     _status = GAMESTATE::RUNNING;
     firstTime = clock();
 }
-
+//Can choose the level.
 void GameManager::LevelSelection()
 {
     system("cls");
@@ -283,53 +282,57 @@ void GameManager::LevelSelection()
     {
         if (_kbhit())
 		{
-			system("cls");
-			LEVEL;
-			key = _getch();
-			key = toupper(key);
-
-			switch (key)
+		system("cls");
+		LEVEL;
+		key = _getch();
+		key = toupper(key);
+		
+		switch (key)
+		{
+		case 'S':
+			coord.Y += 3;
+			break;
+		case 'W':
+			coord.Y -= 3;
+			break;
+		case 'F':
+			if (coord.Y == 6)
 			{
-			case 'S':
-				coord.Y += 3;
-				break;
-			case 'W':
-				coord.Y -= 3;
-				break;
-			case 'F':
-				if (coord.Y == 6)
-				{
-					_level = LEVELSTATE::LEVEL1;
-					_status = GAMESTATE::OPENCARD;
-					return;
-				}
-				else if (coord.Y == 9)
-				{
-					_level = LEVELSTATE::LEVEL2;
-					_status = GAMESTATE::OPENCARD;
-					return;
-				}
-				else if (coord.Y == 12)
-				{
-					_level = LEVELSTATE::LEVEL3;
-					_status = GAMESTATE::OPENCARD;
-					return;
-				}
+				_level = LEVELSTATE::LEVEL1;
+				_status = GAMESTATE::OPENCARD;
+				return;
 			}
-			if (coord.Y <= 6)
-				coord.Y = 6;
-			else if (coord.Y >= 12)
-				coord.Y = 12;
+			else if (coord.Y == 9)
+			{
+				_level = LEVELSTATE::LEVEL2;
+				_status = GAMESTATE::OPENCARD;
+				return;
+			}
+			else if (coord.Y == 12)
+			{
+				_level = LEVELSTATE::LEVEL3;
+				_status = GAMESTATE::OPENCARD;
+				return;
+			}
 		}
-		SetConsoleCursorPosition(handle, coord);
-		cout << ">";
+		if (coord.Y <= 6)
+			coord.Y = 6;
+		else if (coord.Y >= 12)
+			coord.Y = 12;
 	}
+	    SetConsoleCursorPosition(handle, coord);
+	    cout << ">";
+    }
 }
+
+//The most important function.
+//Responsible for playing games, checking cards, and checking scores.
 void GameManager::PlayGame()
 {
-    curXPos = 5;
-    curYPos = 5;
-    int after;
+	curXPos = 5;
+	curYPos = 5;
+	
+	int after;
 	int time = clock();
 	int key;
 	int firstRender = 0;
@@ -360,69 +363,71 @@ void GameManager::PlayGame()
 			map[curYPos][curXPos] = 0;
 			break;
 		}
-        else if (_kbhit())
-        {
-            key = _getch();
-            key = toupper(key);
-            switch (key)
-            {
-            case 'S':
-                map[curYPos][curXPos] = 0;
-                curYPos += 4;
-                CHECK(curXPos, curYPos);
-                map[curYPos][curXPos] = 3;
-                Render();
-                break;
-            case 'A':
-                map[curYPos][curXPos] = 0;
-                curXPos -= 6;
-                CHECK(curXPos, curYPos);
-                map[curYPos][curXPos] = 3;
-                Render();
-                break;
-            case 'D':
-                map[curYPos][curXPos] = 0;
-                curXPos += 6;
-                CHECK(curXPos, curYPos);
-                map[curYPos][curXPos] = 3;
-                Render();
-                break;
-            case 'W':
-                map[curYPos][curXPos] = 0;
-                curYPos -= 4;
-                CHECK(curXPos, curYPos);
-                map[curYPos][curXPos] = 3;
-                Render();
-                break;
-            case 'F':
-                for (int i = 0; i < 30; i++)
-                {
-                    int x = GetCurrentCard(i).GetXPos();
-                    int y = GetCurrentCard(i).GetYPos();
-                    if (x == curXPos && y == curYPos - 2)
-                    {
-                        Check(GetCurrentCard(i));
-                    }
-                }
-                Render();
-                break;
-            default:
-                break;
-            }
-        }
-  		if (firstRender <= 1)
-		{
-			firstRender++;
-			Render();
-		}
-		if (after - time >= 1000)
-		{
-			Render();
-			time = clock();
-		}
-	}
+	    else if (_kbhit())
+	    {
+		    key = _getch();
+		    key = toupper(key);
+		    switch (key)
+		    {
+			    case 'S':
+				    map[curYPos][curXPos] = 0;
+				    curYPos += 4;
+				    CHECK(curXPos, curYPos);
+				    map[curYPos][curXPos] = 3;
+				    Render();
+				    break;
+			    case 'A':
+				    map[curYPos][curXPos] = 0;
+				    curXPos -= 6;
+				    CHECK(curXPos, curYPos);
+				    map[curYPos][curXPos] = 3;
+				    Render();
+				    break;
+			    case 'D':
+				    map[curYPos][curXPos] = 0;
+				    curXPos += 6;
+				    CHECK(curXPos, curYPos);
+				    map[curYPos][curXPos] = 3;
+				    Render();
+				    break;
+			    case 'W':
+				    map[curYPos][curXPos] = 0;
+				    curYPos -= 4;
+				    CHECK(curXPos, curYPos);
+				    map[curYPos][curXPos] = 3;
+				    Render();
+				    break;
+			    case 'F':
+				    for (int i = 0; i < 30; i++)
+				    {
+
+					    int x = GetCurrentCard(i).GetXPos();
+					    int y = GetCurrentCard(i).GetYPos();
+					    if (x == curXPos && y == curYPos - 2)
+					    {
+						    Check(GetCurrentCard(i));
+					    }
+				    }
+				    Render();
+				    break;
+			    default:
+				    break;
+		    }
+	    }
+	    if (firstRender <= 1)
+	    {
+		    firstRender++;
+		    Render();
+	    }
+	    if (after - time >= 1000)
+	    {
+		    Render();
+		    time = clock();
+	    }
+    }
 }
 
+//Determine the success of the game.
 void GameManager::GameSuccess()
 {
 	system("cls");
@@ -459,6 +464,7 @@ void GameManager::DefaultException()
     int a = _getch();
 }
 
+//The game ends when the user wants to exit.
 void GameManager::EndGame()
 {
 	int endTimer = 3;
